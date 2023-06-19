@@ -8,7 +8,7 @@ Created on Sat Jun 17 01:42:00 2023
 import requests
 import json
 
-url = "http://127.0.0.1:5000/test"
+url = "http://3.39.118.25:5000/test"
 
 # headers
 headers = {

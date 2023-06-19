@@ -20,13 +20,8 @@ def generate_journal(age,gender,job,memolet_list):
     let=''
     for i in range(len(memolet_list)):
         let+=f"{i+1}. {memolet_list[i].get('memoLet')}\n"
-    text=f"너는 {age}세 {'남자' if gender else '여자'} {job}의 입장에서 주어진 조건에 따라 일기를 작성해주는 assistant야.\n\
-        아래 '''로 구분된 내용을 합쳐 하나의 일기를 써줘.\n\
-        이때 일기에는 [제목], [내용], [키워드]가 포함되도록 해줘.\n\
-        \'\'\'\n\
-        {let}\
-        \'\'\'"
-    print(text)
+    text=f"너는 {age}세 {gender} {job}의 입장에서 주어진 조건에 따라 일기를 작성해주는 assistant야.\n아래 '''로 구분된 내용을 합쳐 하나의 일기를 써줘.\n이때 일기에는 [제목], [내용], [키워드]가 포함되도록 해줘.\n\'\'\'\n{let}\'\'\'"
+    #print(text)
     
     start=time.time()
     openai.api_key = os.getenv("OPENAI_API_KEY") 
@@ -35,14 +30,14 @@ def generate_journal(age,gender,job,memolet_list):
         messages=[{"role": "user", "content":f"{text}"}]
         )
     end=time.time()
-    print(end-start,'sec')
+    #print(end-start,'sec')
     """
     print(response.usage)
     output=response.choices[0].message.content
     print(output)
     """
     
-    return response.choices[0].message.content
+    return response.choices[0].message.content, end-start
 
 if __name__ == "__main__":
     print(generate_journal())

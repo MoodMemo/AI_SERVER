@@ -38,7 +38,7 @@ def test():
     """
     
     user=params.get('userDto')
-    text=generate_journal(user.get('age'),user.get('gender'),user.get('job'),params.get('todayStampList'))
+    text,time=generate_journal(user.get('age'),user.get('gender'),user.get('job'),params.get('todayStampList'))
     text=text.split(']')
     text2=[text[1].split('[')[0],text[2].split('[')[0],text[3]]
     for i in range(len(text2)):
@@ -56,7 +56,8 @@ def test():
      "date":date,
      "title":text2[0],
      "bodyText":text2[1],
-     "keyword":keyword}
+     "keyword":keyword,
+     "time":f"{time:.2f}"}
     
     data=json.dumps(temp)
     
