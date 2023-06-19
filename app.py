@@ -37,7 +37,8 @@ def test():
     #print(output)
     """
     
-    text=generate_journal()
+    user=params.get('userDto')
+    text=generate_journal(user.get('age'),user.get('gender'),user.get('job'),params.get('todayStampList'))
     text=text.split(']')
     text2=[text[1].split('[')[0],text[2].split('[')[0],text[3]]
     for i in range(len(text2)):
@@ -50,8 +51,8 @@ def test():
     
     d = datetime.datetime.now() - datetime.timedelta(days=1) #어제 날짜로 일기 작성
     date=f'{d.year}-{str(d.month):0>2}-{str(d.day):0>2}'
-    temp={"kakaoId":f"{params.get('kakaoId')}",
-     "username":f"{params.get('username')}",
+    temp={"kakaoId":f"{user.get('kakaoId')}",
+     "username":f"{user.get('username')}",
      "date":date,
      "title":text2[0],
      "bodyText":text2[1],
