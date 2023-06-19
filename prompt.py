@@ -2,24 +2,25 @@
 
 import openai
 import os
-import datetime
+#import datetime
 import time
 import tiktoken
-#import requests
 #import json
+#import requests
+
 
 
 
 def generate_journal():
     user={'age':22,'sex':'여자','job':'대학생'}
-    d = datetime.datetime.now() - datetime.timedelta(days=1) #어제 날짜로 일기 작성
-    date=f'{str(d.year%100):0>2}.{str(d.month):0>2}.{str(d.day):0>2}'
-    week=['월','화','수','목','금','토','일']
-    weekday=week[d.weekday()]
+    #d = datetime.datetime.now() - datetime.timedelta(days=1) #어제 날짜로 일기 작성
+    #date=f'{str(d.year%100):0>2}.{str(d.month):0>2}.{str(d.day):0>2}'
+    #week=['월','화','수','목','금','토','일']
+    #weekday=week[d.weekday()]
     tokenizer = tiktoken.encoding_for_model("gpt-3.5-turbo")
     text=f"너는 22세 여자 대학생의 입장에서 주어진 조건에 따라 일기를 작성해주는 assistant야.\n\
-        아래 '''로 구분된 내용으로 하나의 일기를 써줘.\n\
-        이때 일기에는 제목, 내용, 키워드가 포함되도록 해줘.\n\
+        아래 '''로 구분된 내용을 합쳐 하나의 일기를 써줘.\n\
+        이때 일기에는 [제목], [내용], [키워드]가 포함되도록 해줘.\n\
         \'\'\'\n\
         1. 과제... 할 건 많은데 막상 과제 하러 들어가면 뭐부터 손대야 할지 감이 안 온다. 그래도 제일 어려운 부분 오늘 끝내서 내일이면 얼추 완성시킬 수 있을 것 같다\n\
         2. 점심으로 친구들이랑 초밥 먹었다 맛은 그냥 무난! 지금 밥 다 먹고 친구들이랑 대외활동 자료 작성 잠깐 하다가 헤어져서 학사 가는 길인데... 너무 피곤하다\n\
@@ -29,24 +30,24 @@ def generate_journal():
         \'\'\'"
     
     
-    #start=time.time()
+    start=time.time()
     openai.api_key = os.getenv("OPENAI_API_KEY") 
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-0613",
         messages=[{"role": "user", "content":f"{text}"}]
         )
-    #end=time.time()
-    #print(end-start,'sec')
+    end=time.time()
+    print(end-start,'sec')
     """
     print(response.usage)
     output=response.choices[0].message.content
     print(output)
     """
+    
     return response.choices[0].message.content
 
-if __name__=="main":
-    json_data={}
-    generate_journal()
+if __name__ == "__main__":
+    print(generate_journal())
 
 
 
@@ -133,7 +134,7 @@ userID=1
 name="이준하"
 userType="22세/남자/대학생"
 d = datetime.datetime.now() - datetime.timedelta(days=1) #어제 날짜로 일기 작성
-date=f'{str(d.year%100):0>2}.{str(d.month):0>2}.{str(d.day):0>2}'
+date=f'{d.year}-{str(d.month):0>2}-{str(d.day):0>2}'
 title=""
 bodyText=""
 noc=0
@@ -145,7 +146,6 @@ temp = {
     "date": date,
     "title": title,
     "bodyText": bodyText,
-    "noc": f"{noc}",
     "keyword": keyword
 }
 
