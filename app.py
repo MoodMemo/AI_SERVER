@@ -59,9 +59,9 @@ def journal():
      "keyword":keyword,
      "time":f"{time:.2f}"}
     
-    data=json.dumps(temp)
+    #data=json.dumps(temp)
     
-    return data
+    return jsonify(temp)
 
 """
 @app.route("/keyword", methods=['POST'])

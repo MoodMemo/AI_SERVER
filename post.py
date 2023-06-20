@@ -8,7 +8,7 @@ Created on Sat Jun 17 01:42:00 2023
 import requests
 import json
 
-url = "http://3.39.118.25:5000/journal"
+url = "http://127.0.0.1:5000/journal"
 
 # headers
 headers = {
@@ -20,7 +20,7 @@ temp = {
     "userDto": {
         "kakaoId": "101010",
         "username": "박유리",
-        "age": 23,
+        "age": 22,
         "gender": "여자",
         "job": "대학생"
     },
