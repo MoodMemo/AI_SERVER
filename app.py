@@ -52,7 +52,6 @@ def journal():
     d = datetime.datetime.now() - datetime.timedelta(days=1) #어제 날짜로 일기 작성
     date=f'{d.year}-{str(d.month):0>2}-{str(d.day):0>2}'
     temp={"kakaoId":f"{user.get('kakaoId')}",
-     "username":f"{user.get('username')}",
      "date":date,
      "title":text2[0],
      "bodyText":text2[1],

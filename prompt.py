@@ -20,7 +20,7 @@ def generate_journal(age,gender,job,memolet_list):
     let=''
     for i in range(len(memolet_list)):
         let+=f"{i+1}. {memolet_list[i].get('memoLet')}\n"
-    text=f"너는 {age}세 {gender} {job}의 입장에서 주어진 조건에 따라 일기를 작성해주는 assistant야.\n아래 '''로 구분된 내용을 합쳐 하나의 일기를 써줘.\n이때 일기에는 [제목], [내용], [키워드]가 포함되도록 해줘.\n\'\'\'\n{let}\'\'\'"
+    text=f"너는 {age}세 {gender} {job}의 입장에서 주어진 조건에 따라 일기를 작성해주는 assistant야.\n아래 '''로 구분된 내용을 합쳐 하나의 일기를 써줘.\n이때 일기에는 [제목], [내용], [키워드]가 포함되도록 해줘.\n키워드는 반드시 3개로 뽑아줘.\n\'\'\'\n{let}\'\'\'"
     #print(text)
     
     start=time.time()
@@ -136,9 +136,6 @@ response = openai.ChatCompletion.create(
 end=time.time()
 print(end-start,'sec')
 output=response.choices[0].message.content
-print(text)
-print('토큰 개수 :',len(tokenizer.encode(text)),'개')
-print('------------------------------------')
 print(output)
 
 
