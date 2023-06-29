@@ -8,7 +8,7 @@ Created on Fri Jun 16 11:38:23 2023
 from flask import Flask, request, json, jsonify
 import openai
 import os
-from prompt import generate_journal, generate_keyword
+from prompt import generate_journal, generate_keyword, make_prompt
 import json
 import datetime
 
@@ -38,7 +38,7 @@ def journal():
     """
     
     user=params.get('userDto')
-    text,time=generate_journal(user.get('age'),user.get('gender'),user.get('job'),params.get('todayStampList'))
+    text,time=generate_journal(make_prompt(user.get('age'),user.get('gender'),user.get('job'),params.get('todayStampList')))
     text=text.split(']')
     text2=[text[1].split('[')[0],text[2].split('[')[0],text[3]]
     for i in range(len(text2)):
