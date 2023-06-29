@@ -56,9 +56,7 @@ def journal():
      "date":date,
      "title":text2[0],
      "bodyText":text2[1],
-     "keyword1st":keyword[0],
-     "keyword2nd":keyword[1],
-     "keyword3rd":keyword[2],
+     "keyword":keyword,
      "time":f"{time:.2f}"}
     
     #data=json.dumps(temp)
