@@ -24,7 +24,7 @@ def generate_journal(prompt):
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-0613",
         messages=[{"role": "user", "content":f"{prompt}"}],
-        temperature=0.5
+        temperature=0.6
         )
     end=time.time()
     #print(end-start,'sec')
@@ -39,8 +39,9 @@ def generate_journal(prompt):
 def make_prompt(age,gender,job,memolet_list):
     let=''
     for i in range(len(memolet_list)):
-        let+=f"{i+1}. {memolet_list[i].get('localTime')[:5]} {memolet_list[i].get('memoLet')}\n"
-    text=f"너는 {age}세 {gender} {job}의 입장에서 주어진 조건에 따라 일기를 작성해주는 assistant야.\n아래 \'\'\'로 구분된 내용을 합쳐 하나의 일기를 써줘.\n이때 일기에는 [제목], [내용], [키워드]가 포함되도록 해줘.\n키워드는 반드시 3개로 뽑아줘.\n1.,2.,3.과 같이 구분된 각 내용들은 오늘 하루 있었던 일들이야.\n 일기에 구체적인 시간은 절대 포함하지 마.\n 그리고 시간의 흐름만 반영해 일기를 써줘.\n\n\'\'\'\n{let}\'\'\'"
+        date=memolet_list[i].get('dateTime')
+        let+=f"{i+1}. {date[:10]} {date[11:16]} {memolet_list[i].get('memoLet')}\n"
+    text=f"너는 {age}세 {gender} {job}의 입장에서 주어진 조건에 따라 일기를 작성해주는 assistant야.\n아래 \'\'\'로 구분된 내용을 합쳐 하나의 일기를 써줘.\n이때 일기에는 [제목], [내용], [키워드]가 포함되도록 해줘.\n키워드는 반드시 3개로 뽑아줘.\n1.,2.,3.과 같이 구분된 각 내용들은 오늘 하루 있었던 일들이야.\n일기에 구체적인 시간은 절대 포함하지 마.\n그리고 시간의 흐름만 반영해 일기를 과거형으로 써줘.\n제목은 오늘 하루 있었던 일의 핵심을 요약해줘.\n\n\'\'\'\n{let}\'\'\'"
     
     return text
 
@@ -69,43 +70,49 @@ if __name__ == "__main__":
     user = {
         "userDto": {
             "kakaoId": "101010",
-            "username": "이민규",
-            "age": 22,
-            "gender": "남자",
+            "username": "민서",
+            "age": 23,
+            "gender": "여자",
             "job": "대학생"
         },
         "todayStampList": [
             {
                 "kakaoId": "101010",
                 "localDate": "2023-06-25",
-                "localTime": "13:12:00",
+                "localTime": "12:04:00",
                 "dateTime": "2023-06-25T13:12:00",
-                "stamp": "기쁨",
-                "memoLet": "점심으로 맛있는 타코야끼와 불닭볶음면을 먹었어요."
+                "stamp": "피곤",
+                "memoLet": "피곤하지만 일단 포항에 도착했음!!!! 고속버스 4시간 진짜 쉽지않다"
             },
             {
                 "kakaoId": "101010",
                 "localDate": "2023-06-25",
-                "localTime": "14:50:00",
+                "localTime": "13:00:00",
                 "dateTime": "2023-06-25T14:50:00",
-                "stamp": "슬픔",
-                "memoLet": "퇴검을 위해 청소하느라 허리가 아파요"
+                "stamp": "기쁨",
+                "memoLet": "패들보드 너무 재밌었어!!!! 진짜 오랜맘에 해양스포츠 넘 재밌었다"
             },
             {
                 "kakaoId": "101010",
                 "localDate": "2023-06-25",
-                "localTime": "19:10:00",
+                "localTime": "18:00:00",
                 "dateTime": "2023-06-25T19:10:00",
-                "stamp": "졸림",
-                "memoLet": "드디어 청소가 끝났어요. 저녁으로 배달긱에 새로 생긴 닭강정을 먹었어요. 예상보다 맛있고 양이 많아서 종종 시켜먹어야겠어요."
+                "stamp": "우울",
+                "memoLet": "너무 걱정했는데 괜찮아 졌다고 하더라도 승재랑 같이 간 곳은 여전히 너무 힘들다 많이 보고싶다"
             },
             {
                 "kakaoId": "101010",
                 "localDate": "2023-06-25",
-                "localTime": "23:03:00",
+                "localTime": "21:00:00",
                 "dateTime": "2023-06-25T23:03:00",
-                "stamp": "졸림",
-                "memoLet": "힘든 하루를 보냈어요"
+                "stamp": "기쁨",
+                "memoLet": "꽃돼지식당 돼지고기 존맛진짜..."
+            },
+            {
+                "kakaoId": "101010",
+                "dateTime": "2023-06-26T02:03:00",
+                "stamp": "기쁨",
+                "memoLet": "새벽까지 친구들이랑 술 마시니까 재밌다!"
             }
         ]
     }
@@ -208,6 +215,12 @@ if __name__ == "__main__":
             "dateTime": "2023-06-25T23:03:00",
             "stamp": "기쁨",
             "memoLet": "꽃돼지식당 돼지고기 존맛진짜..."
+        },
+        {
+            "kakaoId": "101010",
+            "dateTime": "2023-06-26T02:03:00",
+            "stamp": "기쁨",
+            "memoLet": "새벽까지 친구들이랑 술 마시니까 재밌다!"
         }
     ]
 }
