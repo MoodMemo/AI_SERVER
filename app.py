@@ -5,12 +5,16 @@ Created on Fri Jun 16 11:38:23 2023
 @author: juLeena
 """
 
-from flask import Flask, request, json, jsonify
+from flask import Flask, request, json, jsonify, send_file, render_template
 import openai
 import os
 from prompt import generate_journal, generate_keyword, make_prompt
+from statistics import load_db, store_data
 import json
 import datetime
+import matplotlib.pyplot as plt
+import matplotlib
+from io import BytesIO
 
 app = Flask(__name__)
 
@@ -65,6 +69,88 @@ def journal():
     
     return jsonify(temp)
 
+
+
+
+
+
+
+@app.route("/draw_daily_stamp_total")
+def draw_daily_stamp_total():
+    with open("index.json","r") as file:
+        json_object=eval(json.load(file))
+
+    fig=plt.figure(figsize=(10,10))
+    ax=fig.add_subplot(111)
+    ax.grid()
+    x,y=list(json_object['daily_stamp_total'].keys()),list(json_object['daily_stamp_total'].values())
+    plt.title("Total Daily Stamp(~%s)"%(datetime.datetime.now()))
+    plt.plot(x,y,color="blue")
+    for pos,data in zip(x,y):
+        ax.annotate('%s'%data,xy=(pos,data),textcoords='data',fontsize=13)
+    #plt.show()
+
+    img = BytesIO()
+    plt.savefig(img, format='png', dpi=200)
+    img.seek(0)
+    return send_file(img, mimetype='image/png')
+
+
+@app.route("/draw_time")
+def draw_time():
+    with open("index.json","r") as file:
+        json_object=eval(json.load(file))
+    #print(json_object)
+    fig=plt.figure(figsize=(10,10))
+    ax=fig.add_subplot(111)
+    ax.grid()
+    x,y=list(json_object['stamp_time'].keys()),list(json_object['stamp_time'].values())
+    plt.title("Total Stamp time(~%s)"%(datetime.datetime.now()))
+    plt.plot(x,y,color="blue")
+    for pos,data in zip(x,y):
+        ax.annotate('%s'%data,xy=(pos,data),textcoords='data',fontsize=13)
+    #plt.show()
+
+    img = BytesIO()
+    plt.savefig(img, format='png', dpi=200)
+    img.seek(0)
+    return send_file(img, mimetype='image/png')
+
+
+@app.route("/draw_time_daily_stamp_total")
+def draw_time_daily_stamp_total():
+    with open("index.json","r") as file:
+        json_object=eval(json.load(file))
+    L=[['00','02'],['03','08'],['09','10'],['11','12'],['13','14'],['15','18'],['19','21'],['22','22'],['23','23']]
+    fig=plt.figure(figsize=(12,12))
+    ax=fig.add_subplot(111)
+    ax.grid()
+    plt.title("Total Stamp time(~%s)"%(datetime.datetime.now()))
+    
+    colors=['blue','orange','green','red','purple','pink','brown','gray','olive']
+    for i in range(len(L)):
+        start=L[i][0]
+        end=L[i][1]
+        x,y=list(json_object['time_daily_stamp_total'][start+'-'+end].keys()),list(json_object['time_daily_stamp_total'][start+'-'+end].values())
+        plt.plot(x,y,color=colors[i],label='%s-%s'%(start,end))
+        for pos,data in zip(x,y):
+            ax.annotate('%s'%data,xy=(pos,data),textcoords='data',fontsize=13)
+    plt.legend()
+    #plt.show()
+
+    img = BytesIO()
+    plt.savefig(img, format='png', dpi=200)
+    img.seek(0)
+    return send_file(img, mimetype='image/png')
+
+
+
+@app.route("/statistics", methods=["GET"])
+def statistics():
+    return render_template("test.html")
+
+
+
 """
 @app.route("/keyword", methods=['POST'])
 def keyword():
@@ -116,5 +202,6 @@ def keyword():
     return data
 """
 
-if __name__ == '__main__':  
-   app.run('0.0.0.0',port=5000,debug=True)
+if __name__ == '__main__':
+    store_data(load_db())
+    app.run('0.0.0.0',port=5000,debug=True)
