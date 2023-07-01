@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import matplotlib
 from io import BytesIO
+from time import sleep
 
 app = Flask(__name__)
 
@@ -80,7 +81,8 @@ def journal():
 def draw_daily_stamp_total():
     with open("index.json","r") as file:
         json_object=eval(json.load(file))
-
+    
+    sleep(0.1)
     fig=plt.figure(figsize=(10,10))
     ax=fig.add_subplot(111)
     ax.grid()
@@ -104,6 +106,7 @@ def draw_time():
     with open("index.json","r") as file:
         json_object=eval(json.load(file))
     #print(json_object)
+    sleep(0.1)
     fig=plt.figure(figsize=(10,10))
     ax=fig.add_subplot(111)
     ax.grid()
@@ -126,6 +129,8 @@ def draw_time():
 def draw_time_daily_stamp_total():
     with open("index.json","r") as file:
         json_object=eval(json.load(file))
+    
+    sleep(0.1)
     L=[['00','02'],['03','08'],['09','10'],['11','12'],['13','14'],['15','18'],['19','21'],['22','22'],['23','23']]
     fig=plt.figure(figsize=(12,12))
     ax=fig.add_subplot(111)
