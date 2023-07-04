@@ -24,7 +24,7 @@ def generate_journal(prompt):
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-0613",
         messages=[{"role": "user", "content":f"{prompt}"}],
-        temperature=0.3
+        temperature=0.2
         )
     end=time.time()
     #print(end-start,'sec')
@@ -42,7 +42,7 @@ def make_prompt(age,gender,job,memolet_list):
         date=memolet_list[i].get('dateTime')
         let+=f"{i+1}. {date[5:10]} {date[11:16]} {memolet_list[i].get('memoLet')}\n"
     now_date=(datetime.datetime.now()-datetime.timedelta(days=1)).strftime('%m-%d')
-    text=f"너는 {age}세 {gender} {job}의 입장에서 주어진 조건에 따라 일기를 작성해주는 assistant야.\n아래 \'\'\'로 구분된 내용을 기반으로 하나의 일기를 써줘.\n이때 일기에는 [제목], [내용], [키워드]가 포함되도록 해줘.\n일기에는 절대 구체적인 시간을 포함하지 마.\n1.,2.,3.과 같이 구분된 각 내용들은 {now_date} 하루 동안 있었던 일들이야.\n만약 내용의 날짜가 내일인 경우, 자기 전에 쓴 것이라고 간주하고 일기를 써.\n그리고 시간의 흐름만 반영해 일기를 과거형으로 써줘.\n키워드는 반드시 3개로 뽑아줘.\n제목은 오늘 하루 있었던 일의 핵심을 요약해줘.\n\n\'\'\'\n{let}\'\'\'"
+    text=f"너는 {age}세 {gender} {job}의 입장에서 주어진 조건에 따라 일기를 작성해주는 assistant야.\n아래 \'\'\'로 구분된 내용을 합쳐 하나의 일기를 써줘.\n이때 일기에는 [제목], [내용], [키워드]가 포함되도록 해줘.\n키워드는 반드시 3개로 뽑아줘.\n1.,2.,3.과 같이 구분된 각 내용들은 오늘 하루 있었던 일들이야.\n일기에 구체적인 시간은 절대 포함하지 마.\n그리고 시간의 흐름만 반영해 일기를 과거형으로 써줘.\n일기 내용은 아래 \'\'\'로 구분된 내용을 기반으로, 과도한 추측은 하지 마.\n제목은 오늘 하루 있었던 일의 핵심을 요약해줘.\n\n\'\'\'\n{let}\'\'\'"
     
     return text
 
@@ -72,22 +72,22 @@ if __name__ == "__main__":
         "userDto": {
             "kakaoId": "101010",
             "username": "민서",
-            "age": 26,
+            "age": 23,
             "gender": "여자",
-            "job": "취준생"
+            "job": "제빵사"
         },
         "todayStampList": [
             {
                 "kakaoId": "101010",
-                "dateTime": "2023-07-04T14:24:00",
+                "dateTime": "2023-07-04T10:06:00",
                 "stamp": "피곤",
-                "memoLet": "오늘 점심도 너무 맛있었다 어제부터 이틀째 한식 먹는중인데 집밥 먹는 기분이랄까나… 요새 집밥을 너무 못먹어서 아쉬워 바쁜탓에 가족들이랑 밥 한 번 못먹고~~"
+                "memoLet": "맛있는 알리오올리오 파스타랑 윙 구워 먹엇지렁"
             },
             {
                 "kakaoId": "101010",
-                "dateTime": "2023-07-05T00:13:00",
+                "dateTime": "2023-07-05T00:08:00",
                 "stamp": "우울",
-                "memoLet": "노트북 두고 올 목표로 개발 열심히 하다가 막차 되었는데도 마무리 안되어서 ㅅㅂ 냅다 그냥 가방에 넣고 비오는데도 개뛰었는데 지하철을 못탐. 나는 제시간에 왔는데 2호선이 6분 연착되어서 왔음. 덕분에 신분당선 막차 놓쳤음 이런 개같은"
+                "memoLet": "비가 너무 많이 와서 습했다.. 그래도 알차게 서울나들이 해서 좋았다"
             }
         ]
     }
