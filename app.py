@@ -94,7 +94,7 @@ def draw_daily_stamp_total():
     #plt.show()
     
     img = BytesIO()
-    FigureCanvas(plt.gcf()).print_png(img)
+    FigureCanvas(fig).print_png(img)
     #plt.savefig(img, format='png', dpi=200)
     #img.seek(0)
     #return send_file(img, mimetype='image/png')
@@ -120,7 +120,7 @@ def draw_time():
 
 
     img = BytesIO()
-    FigureCanvas(plt.gcf()).print_png(img)
+    FigureCanvas(fig).print_png(img)
     #plt.savefig(img, format='png', dpi=200)
     #img.seek(0)
     #return send_file(img, mimetype='image/png')
@@ -151,7 +151,7 @@ def draw_time_daily_stamp_total():
     
 
     img = BytesIO()
-    FigureCanvas(plt.gcf()).print_png(img)
+    FigureCanvas(fig).print_png(img)
     #plt.savefig(img, format='png', dpi=200)
     #img.seek(0)
     #return send_file(img, mimetype='image/png')
@@ -161,8 +161,8 @@ def draw_time_daily_stamp_total():
 
 @app.route("/statistics", methods=["GET"])
 def index():
+    store_data(load_db())
     return render_template("test.html")
-
 
 
 """
@@ -217,5 +217,4 @@ def keyword():
 """
 
 if __name__ == '__main__':
-    store_data(load_db())
     app.run('0.0.0.0',port=5000,debug=True)
