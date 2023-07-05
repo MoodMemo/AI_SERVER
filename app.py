@@ -83,7 +83,7 @@ def draw_daily_stamp_total():
         json_object=eval(json.load(file))
     matplotlib.use('agg')
 
-    fig=plt.figure(figsize=(10,10))
+    fig=plt.figure(figsize=(20,11))
     ax=fig.add_subplot(111)
     ax.grid()
     x,y=list(json_object['daily_stamp_total'].keys()),list(json_object['daily_stamp_total'].values())
@@ -108,7 +108,7 @@ def draw_time():
     #print(json_object)
     matplotlib.use('agg')
 
-    fig=plt.figure(figsize=(10,10))
+    fig=plt.figure(figsize=(20,12))
     ax=fig.add_subplot(111)
     ax.grid()
     x,y=list(json_object['stamp_time'].keys()),list(json_object['stamp_time'].values())
@@ -133,7 +133,7 @@ def draw_time_daily_stamp_total():
     matplotlib.use('agg')
 
     L=[['00','02'],['03','08'],['09','10'],['11','12'],['13','14'],['15','18'],['19','21'],['22','22'],['23','23']]
-    fig=plt.figure(figsize=(12,12))
+    fig=plt.figure(figsize=(20,12))
     ax=fig.add_subplot(111)
     ax.grid()
     ax.set_title("Total Stamp time(~%s)"%(datetime.datetime.now()))
@@ -157,7 +157,59 @@ def draw_time_daily_stamp_total():
     #return send_file(img, mimetype='image/png')
     return Response(img.getvalue(), mimetype='image/png')
 
+@app.route("/draw_active_users()")
+def draw_active_users():
+    with open("index.json","r") as file:
+        json_object=eval(json.load(file))
+    matplotlib.use('agg')
+    #print(json_object)
+    fig=plt.figure(figsize=(20,12))
+    ax=fig.add_subplot(111)
+    #ax.grid()
+    ax.title("Active Users(~%s)"%(datetime.datetime.now()))
+        
+    keys=list(json_object['active_users'].keys())
+    
+    colors=['blue','red','green','purple']
+    x=list(json_object['active_users']['1 stamp'].keys())
+    
+    for i in range(len(keys)):
+        y=list(json_object['active_users'][keys[i]].values())
+        plt.plot(x,y,color=colors[i],label=keys[i])
+        for pos,data in zip(x,y):
+            ax.annotate('%s'%data,xy=(pos,data),textcoords='data',fontsize=13)
+    for pos,data in zip(x,y):
+        ax.annotate('%s'%data,xy=(pos,data),textcoords='data',fontsize=13)
+    plt.legend()
+    #plt.show()
+    img = BytesIO()
+    FigureCanvas(fig).print_png(img)
+    #plt.savefig(img, format='png', dpi=200)
+    #img.seek(0)
+    #return send_file(img, mimetype='image/png')
+    return Response(img.getvalue(), mimetype='image/png')
 
+@app.route("/statistics/user/<kakaoId>",methods=["GET"])
+def user_statistics(kakaoId):
+    json_object={"kakaoId":kakaoId,
+                 "total_stamp":0,
+                 "stamp_by_emotion":{"기쁨😆":0,
+                                     "슬픔😭":0,
+                                     "우울☹":0,
+                                     "평온🙂":0,
+                                     "피곤😴":0,
+                                     "기타":0
+                                     }
+                }
+    for item in load_db().stamps.find({"kakaoId": kakaoId}):
+        json_object["total_stamp"]+=1
+        emotion=item.get('stamp')
+        if emotion not in json_object["stamp_by_emotion"]:
+            json_object["stamp_by_emotion"]["기타"]+=1
+        else:
+            json_object["stamp_by_emotion"][emotion]+=1
+    
+    return jsonify(json_object)
 
 @app.route("/statistics", methods=["GET"])
 def index():
