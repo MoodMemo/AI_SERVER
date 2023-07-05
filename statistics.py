@@ -11,7 +11,7 @@ import dotenv
 import os
 
 def load_db():
-    dotenv.load_dotenv()
+    #dotenv.load_dotenv()
 
     client = pymongo.MongoClient(os.getenv("mongoUrl"))
 
