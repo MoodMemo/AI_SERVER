@@ -83,7 +83,7 @@ def draw_daily_stamp_total():
         json_object=eval(json.load(file))
     matplotlib.use('agg')
 
-    fig=plt.figure(figsize=(20,11))
+    fig=plt.figure(figsize=(20,15))
     ax=fig.add_subplot(111)
     ax.grid()
     x,y=list(json_object['daily_stamp_total'].keys()),list(json_object['daily_stamp_total'].values())
@@ -108,7 +108,7 @@ def draw_time():
     #print(json_object)
     matplotlib.use('agg')
 
-    fig=plt.figure(figsize=(20,12))
+    fig=plt.figure(figsize=(20,15))
     ax=fig.add_subplot(111)
     ax.grid()
     x,y=list(json_object['stamp_time'].keys()),list(json_object['stamp_time'].values())
@@ -133,10 +133,10 @@ def draw_time_daily_stamp_total():
     matplotlib.use('agg')
 
     L=[['00','02'],['03','08'],['09','10'],['11','12'],['13','14'],['15','18'],['19','21'],['22','22'],['23','23']]
-    fig=plt.figure(figsize=(20,12))
+    fig=plt.figure(figsize=(20,15))
     ax=fig.add_subplot(111)
     ax.grid()
-    ax.set_title("Total Stamp time(~%s)"%(datetime.datetime.now()))
+    ax.set_title("Total Time Daily Stamp time(~%s)"%(datetime.datetime.now()))
     
     colors=['blue','orange','green','red','purple','pink','brown','gray','olive']
     for i in range(len(L)):
@@ -163,14 +163,14 @@ def draw_active_users():
         json_object=eval(json.load(file))
     matplotlib.use('agg')
     #print(json_object)
-    fig=plt.figure(figsize=(20,12))
+    fig=plt.figure(figsize=(20,15))
     ax=fig.add_subplot(111)
     #ax.grid()
-    ax.title("Active Users(~%s)"%(datetime.datetime.now()))
+    ax.set_title("Active Users(~%s)"%(datetime.datetime.now()))
         
     keys=list(json_object['active_users'].keys())
     
-    colors=['blue','red','green','purple']
+    colors=['blue','red','green','purple','gray']
     x=list(json_object['active_users']['1 stamp'].keys())
     
     for i in range(len(keys)):

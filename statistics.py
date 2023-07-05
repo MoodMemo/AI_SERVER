@@ -7,9 +7,13 @@ Created on Sun Jul  2 01:07:53 2023
 import datetime
 import pymongo
 import json
+import dotenv
+import os
 
 def load_db():
-    client = pymongo.MongoClient("mongodb://hehehaha:hehehaha14@3.38.118.228:27017")
+    dotenv.load_dotenv()
+
+    client = pymongo.MongoClient(os.getenv("mongoUrl"))
 
     db=client.get_database("moodmemo")
     
@@ -17,7 +21,8 @@ def load_db():
 
 def store_data(db):
     prev_time=datetime.datetime(2023, 6, 23)
-    pres_time=datetime.datetime.now() - datetime.timedelta(hours=9) #UTC로 변경
+    now_time=datetime.datetime.now()
+    pres_time=now_time - datetime.timedelta(hours=9) #UTC로 변경
     #print(pres_time)
     json_object={
                 'daily_stamp_total':{},
@@ -33,7 +38,11 @@ def store_data(db):
                                             '22-22':{},
                                             '23-23':{}
                                         },
-                
+                'active_users':{'1 stamp':{'%s'%(prev_time+datetime.timedelta(days=i)).strftime("%y-%m-%d"):0 for i in range((now_time-prev_time).days+1)},
+                                '2 stamps':{'%s'%(prev_time+datetime.timedelta(days=i)).strftime("%y-%m-%d"):0 for i in range((now_time-prev_time).days+1)},
+                                'more than 1 stamp':{'%s'%(prev_time+datetime.timedelta(days=i)).strftime("%y-%m-%d"):0 for i in range((now_time-prev_time).days+1)},
+                                'more than 2 stamps':{'%s'%(prev_time+datetime.timedelta(days=i)).strftime("%y-%m-%d"):0 for i in range((now_time-prev_time).days+1)},
+                                'more than 3 stamps':{'%s'%(prev_time+datetime.timedelta(days=i)).strftime("%y-%m-%d"):0 for i in range((now_time-prev_time).days+1)}}
                 }
     #start storing total daily stamp
     for item in db.stamps.find({"dateTime":{"$gt":prev_time,"$lte":pres_time}}):
@@ -44,16 +53,16 @@ def store_data(db):
             json_object['daily_stamp_total'][stamp_time]+=1
     #end storing total daily stamp
     
-    #start storing total daily stamp
+    #start storing stamp_time
     for item in db.stamps.find({"dateTime":{"$gt":prev_time,"$lte":pres_time}}):
         stamp_time=(item['dateTime']+datetime.timedelta(hours=9)).strftime("%H")
         if stamp_time not in json_object['stamp_time']:
             json_object['stamp_time'][stamp_time]=1
         else:
             json_object['stamp_time'][stamp_time]+=1
-    #end storing total daily stamp
+    #end storing stamp_time
     
-    #start storing total daily stamp
+    #start storing time_daily_stamp_total
     L=[['00','02'],['03','08'],['09','10'],['11','12'],['13','14'],['15','18'],['19','21'],['22','22'],['23','23']]
     for i in range(len(L)):
         start=L[i][0]
@@ -65,7 +74,27 @@ def store_data(db):
             if start<=stamp_time<=end:
                 json_object2[stamp_date]+=1
         json_object['time_daily_stamp_total'][start+'-'+end]=json_object2
-    #end storing total daily stamp
+    #end storing time_daily_stamp_total
+    
+    #start storing active_users
+    active_users_hash={'%s'%(prev_time+datetime.timedelta(days=i)).strftime("%y-%m-%d"):{} for i in range((now_time-prev_time).days+1)}
+    for item in db.stamps.find({"dateTime":{"$gt":prev_time,"$lte":pres_time}}):
+        stamp_date=(item['dateTime']+datetime.timedelta(hours=9)).strftime("%y-%m-%d")
+        user_kakaoId=item['kakaoId']
+        if user_kakaoId not in active_users_hash[stamp_date]:
+            active_users_hash[stamp_date][user_kakaoId]=1
+            json_object['active_users']['1 stamp'][stamp_date]+=1
+            json_object['active_users']['more than 1 stamp'][stamp_date]+=1
+        else:
+            active_users_hash[stamp_date][user_kakaoId]+=1
+            if active_users_hash[stamp_date][user_kakaoId]==2:
+                json_object['active_users']['1 stamp'][stamp_date]-=1
+                json_object['active_users']['2 stamps'][stamp_date]+=1
+                json_object['active_users']['more than 2 stamps'][stamp_date]+=1
+            elif active_users_hash[stamp_date][user_kakaoId]==3:
+                json_object['active_users']['2 stamps'][stamp_date]-=1
+                json_object['active_users']['more than 3 stamps'][stamp_date]+=1
+    #end storing active_users
     
     #TODO : 그 외 다른 통계들 추가하기
     
