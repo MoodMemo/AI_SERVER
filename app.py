@@ -20,6 +20,9 @@ from time import sleep
 
 app = Flask(__name__)
 
+#plt.rc('font',family='NanumGothic')
+#matplotlib.rcParams['axes.unicode_minus'] = False
+
 @app.route("/journal", methods=['POST'])
 def journal():
     
@@ -157,7 +160,7 @@ def draw_time_daily_stamp_total():
     #return send_file(img, mimetype='image/png')
     return Response(img.getvalue(), mimetype='image/png')
 
-@app.route("/draw_active_users()")
+@app.route("/draw_active_users")
 def draw_active_users():
     with open("index.json","r") as file:
         json_object=eval(json.load(file))
@@ -175,12 +178,12 @@ def draw_active_users():
     
     for i in range(len(keys)):
         y=list(json_object['active_users'][keys[i]].values())
-        plt.plot(x,y,color=colors[i],label=keys[i])
+        ax.plot(x,y,color=colors[i],label=keys[i])
         for pos,data in zip(x,y):
             ax.annotate('%s'%data,xy=(pos,data),textcoords='data',fontsize=13)
     for pos,data in zip(x,y):
         ax.annotate('%s'%data,xy=(pos,data),textcoords='data',fontsize=13)
-    plt.legend()
+    ax.legend()
     #plt.show()
     img = BytesIO()
     FigureCanvas(fig).print_png(img)
@@ -188,6 +191,60 @@ def draw_active_users():
     #img.seek(0)
     #return send_file(img, mimetype='image/png')
     return Response(img.getvalue(), mimetype='image/png')
+
+@app.route("/draw_dailyReport_time")
+def draw_dailyReport_time():
+    with open("index.json","r") as file:
+        json_object=eval(json.load(file))
+    matplotlib.use('agg')
+    #print(json_object)
+    fig=plt.figure(figsize=(20,15))
+    ax=fig.add_subplot(111)
+    #ax.grid()
+    ax.set_title("Average DailyReport time(~%s)"%(datetime.datetime.now()))
+    
+    x,y=list(json_object['dailyReport_time'].keys()),list(json_object['dailyReport_time'].values())
+    
+    ax.plot(x,y,color="blue")
+    for pos,data in zip(x,y):
+        ax.annotate('%.3f'%data,xy=(pos,data),textcoords='data',fontsize=13)
+    #plt.legend()
+    #plt.show()
+
+    img = BytesIO()
+    FigureCanvas(fig).print_png(img)
+    #plt.savefig(img, format='png', dpi=200)
+    #img.seek(0)
+    #return send_file(img, mimetype='image/png')
+    return Response(img.getvalue(), mimetype='image/png')
+
+@app.route("/draw_avg_daily_stamp")
+def draw_avg_daily_stamp():
+    with open("index.json","r") as file:
+        json_object=eval(json.load(file))
+    matplotlib.use('agg')
+    #print(json_object)
+    fig=plt.figure(figsize=(20,15))
+    ax=fig.add_subplot(111)
+    #ax.grid()
+    ax.set_title("Average Daily Stamp(~%s)"%(datetime.datetime.now()))
+    
+    x,y=list(json_object['daily_stamp_total'].keys()),list(map(lambda x,y:x/y, json_object['daily_stamp_total'].values(), json_object['active_users']['more than 1 stamp'].values()))
+    
+    ax.plot(x,y,color="blue")
+    for pos,data in zip(x,y):
+        ax.annotate('%.2f'%data,xy=(pos,data),textcoords='data',fontsize=13)
+    #plt.legend()
+    #plt.show()
+    
+    img = BytesIO()
+    FigureCanvas(fig).print_png(img)
+    #plt.savefig(img, format='png', dpi=200)
+    #img.seek(0)
+    #return send_file(img, mimetype='image/png')
+    return Response(img.getvalue(), mimetype='image/png')
+    
+
 
 @app.route("/statistics/user/<kakaoId>",methods=["GET"])
 def user_statistics(kakaoId):

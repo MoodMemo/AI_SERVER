@@ -21,6 +21,7 @@ def load_db():
 
 def store_data(db):
     prev_time=datetime.datetime(2023, 6, 23)
+    DR_start_time=datetime.datetime(2023, 6, 27)
     now_time=datetime.datetime.now()
     pres_time=now_time - datetime.timedelta(hours=9) #UTC로 변경
     #print(pres_time)
@@ -42,7 +43,8 @@ def store_data(db):
                                 '2 stamps':{'%s'%(prev_time+datetime.timedelta(days=i)).strftime("%y-%m-%d"):0 for i in range((now_time-prev_time).days+1)},
                                 'more than 1 stamp':{'%s'%(prev_time+datetime.timedelta(days=i)).strftime("%y-%m-%d"):0 for i in range((now_time-prev_time).days+1)},
                                 'more than 2 stamps':{'%s'%(prev_time+datetime.timedelta(days=i)).strftime("%y-%m-%d"):0 for i in range((now_time-prev_time).days+1)},
-                                'more than 3 stamps':{'%s'%(prev_time+datetime.timedelta(days=i)).strftime("%y-%m-%d"):0 for i in range((now_time-prev_time).days+1)}}
+                                'more than 3 stamps':{'%s'%(prev_time+datetime.timedelta(days=i)).strftime("%y-%m-%d"):0 for i in range((now_time-prev_time).days+1)}},
+                'dailyReport_time':{'%s'%(DR_start_time+datetime.timedelta(days=i)).strftime("%y-%m-%d"):0 for i in range(1,(now_time-DR_start_time).days)}
                 }
     #start storing total daily stamp
     for item in db.stamps.find({"dateTime":{"$gt":prev_time,"$lte":pres_time}}):
@@ -95,6 +97,14 @@ def store_data(db):
                 json_object['active_users']['2 stamps'][stamp_date]-=1
                 json_object['active_users']['more than 3 stamps'][stamp_date]+=1
     #end storing active_users
+    
+    #start storing dailyReport_time
+    for item in db.dailyReport.find({"date":{"$gt":DR_start_time,"$lte":now_time}}):
+        DR_date=(item['date']+datetime.timedelta(hours=9)).strftime("%y-%m-%d")
+        json_object['dailyReport_time'][DR_date]+=float(item['time'])
+    for key in json_object['dailyReport_time'].keys():
+        json_object['dailyReport_time'][key]/=json_object['active_users']['more than 2 stamps'][key]
+    #end storing dailyReport_time
     
     #TODO : 그 외 다른 통계들 추가하기
     
