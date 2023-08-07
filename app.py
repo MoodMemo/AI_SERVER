@@ -109,8 +109,7 @@ def dailyReport():
     
     
     
-    d = datetime.datetime.now() - datetime.timedelta(days=1) #어제 날짜로 일기 작성
-    date=f'{d.year}-{str(d.month):0>2}-{str(d.day):0>2}'
+    date = params.get('todayStampList')[0].get('dateTime')[:10]
     temp={"username":f"{user.get('userName')}",
      "date":date,
      "title":text2[0],
