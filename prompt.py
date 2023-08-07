@@ -18,13 +18,13 @@ def generate_journal(prompt):
     #weekday=week[d.weekday()]
     #tokenizer = tiktoken.encoding_for_model("gpt-3.5-turbo")
     #print(text)
-    
+
     start=time.time()
-    openai.api_key = os.getenv("OPENAI_API_KEY") 
+    openai.api_key = os.getenv("OPENAI_API_KEY")
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-0613",
         messages=[{"role": "user", "content":f"{prompt}"}],
-        temperature=0.2
+        temperature=0.1
         )
     end=time.time()
     #print(end-start,'sec')
@@ -33,17 +33,50 @@ def generate_journal(prompt):
     output=response.choices[0].message.content
     print(output)
     """
-    
+    #print(response.choices[0].message.content)
     return response.choices[0].message.content, end-start
 
 def make_prompt(age,gender,job,memolet_list):
     let=''
     for i in range(len(memolet_list)):
         date=memolet_list[i].get('dateTime')
-        let+=f"{i+1}. {date[5:10]} {date[11:16]} {memolet_list[i].get('memoLet')}\n"
-    now_date=(datetime.datetime.now()-datetime.timedelta(days=1)).strftime('%m-%d')
-    text=f"너는 {age}세 {gender} {job}의 입장에서 주어진 조건에 따라 일기를 작성해주는 assistant야.\n아래 \'\'\'로 구분된 내용을 합쳐 하나의 일기를 써줘.\n이때 일기에는 [제목], [내용], [키워드]가 포함되도록 해줘.\n키워드는 반드시 3개로 뽑아줘.\n1.,2.,3.과 같이 구분된 각 내용들은 오늘 하루 있었던 일들이야.\n일기에 구체적인 시간은 절대 포함하지 마.\n그리고 시간의 흐름만 반영해 일기를 과거형으로 써줘.\n일기 내용은 아래 \'\'\'로 구분된 내용을 기반으로, 과도한 추측은 하지 마.\n제목은 오늘 하루 있었던 일의 핵심을 요약해줘.\n\n\'\'\'\n{let}\'\'\'"
-    
+        let+=f"{i+1}. {date[:10]} {date[11:16]} {memolet_list[i].get('memoLet')}\n"
+    text=f"너는 {age}세 {gender} {job}의 입장에서 주어진 조건에 따라 일기를 작성해주는 assistant야.\n아래 \'\'\'로 구분된 내용중 1.,2.,3.과 같이 구분된 내용들을 합쳐 하나의 글로 된 일기를 써줘.\n이때 일기에는 [제목], [내용], [키>워드]가 포함되도록 해줘.\n키워드는 반드시 3개로 뽑아줘.\n1.,2.,3.과 같이 구분된 각 내용들은 오늘 하루 있었던 일들이야.\n일기에 구체적인 시간은 절대 포함하지 마.\n그리고 시간의 흐름만 반영해 일기를 과거형으로 써줘.\n일기 내용은 아래 \'\'\'로 구분된 내용을 기반으로, 과도한 추측은 하지 마.\n제목은 오늘 하루 있었던 일의 핵심을 요약해줘.\n\n\'\'\'\n{let}\'\'\'"
+
+    return text
+
+def generate_DR(prompt):
+    #d = datetime.datetime.now() - datetime.timedelta(days=1) #어제 날짜로 일기 작성
+    #date=f'{str(d.year%100):0>2}.{str(d.month):0>2}.{str(d.day):0>2}'
+    #week=['월','화','수','목','금','토','일']
+    #weekday=week[d.weekday()]
+    #tokenizer = tiktoken.encoding_for_model("gpt-3.5-turbo")
+    #print(text)
+
+    start=time.time()
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo-0613",
+        messages=[{"role": "user", "content":f"{prompt}"}],
+        temperature=0.1
+        )
+    end=time.time()
+    #print(end-start,'sec')
+    """
+    print(response.usage)
+    output=response.choices[0].message.content
+    print(output)
+    """
+    #print(response.choices[0].message.content)
+    return response.choices[0].message.content, end-start
+
+def make_prompt_DR(age,gender,job,memo_list):
+    let=''
+    for i in range(len(memo_list)):
+        date=memo_list[i].get('dateTime')
+        let+=f"{i+1}. {date[:10]} {date[11:16]} {memo_list[i].get('memo')}\n"
+    text=f"너는 {age}세 {gender} {job}의 입장에서 주어진 조건에 따라 일기를 작성해주는 assistant야.\n아래 \'\'\'로 구분된 내용중 1.,2.,3.과 같이 구분된 내용들을 합쳐 하나의 글로 된 일기를 써줘.\n이때 일기에는 [제목], [내용], [키>워드]가 포함되도록 해줘.\n키워드는 반드시 3개로 뽑아줘.\n1.,2.,3.과 같이 구분된 각 내용들은 오늘 하루 있었던 일들이야.\n일기에 구체적인 시간은 절대 포함하지 마.\n그리고 시간의 흐름만 반영해 일기를 과거형으로 써줘.\n일기 내용은 아래 \'\'\'로 구분된 내용을 기반으로, 과도한 추측은 하지 마.\n제목은 오늘 하루 있었던 일의 핵심을 요약해줘.\n\n\'\'\'\n{let}\'\'\'"
+
     return text
 
 def generate_keyword():
