@@ -8,7 +8,7 @@ Created on Fri Jun 16 11:38:23 2023
 from flask import Flask, request, json, jsonify, send_file, render_template,Response
 import openai
 import os
-from prompt import generate_journal, make_prompt, generate_DR, make_prompt_DR
+from prompt import determine_stamp_type, generate_journal, make_prompt, generate_DR, make_prompt_DR
 from statistics import load_db, store_data
 import json
 import datetime
@@ -18,10 +18,24 @@ import matplotlib
 from io import BytesIO
 from time import sleep
 
+import pandas as pd
+import numpy as np
+from ast import literal_eval
+
+from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction
+import chromadb
+
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_random_exponential,
+    retry_if_exception_type
+)
+
 app = Flask(__name__)
  
-#plt.rc('font',family='NanumGothic')
-#matplotlib.rcParams['axes.unicode_minus'] = False
+plt.rc('font',family='NanumGothic')
+matplotlib.rcParams['axes.unicode_minus'] = False
 
 @app.route("/journal", methods=['POST'])
 def journal():
@@ -76,7 +90,7 @@ def journal():
 
 @app.route("/dailyReport", methods=['POST'])
 def dailyReport():
-    
+    print('일기 만들라고') 
     params = request.get_json()
     """
     #print("Json :", params)
@@ -109,20 +123,101 @@ def dailyReport():
     
     
     
-    date = params.get('todayStampList')[0].get('dateTime')[:10]
+    date = params.get('today')
     temp={"username":f"{user.get('userName')}",
      "date":date,
      "title":text2[0],
      "bodytext":text2[1],
      "keyword":[keyword[0],keyword[1],keyword[2]],
      "time":f"{time:.2f}"}
-    
+    print(temp)
     #data=json.dumps(temp)
     
     return jsonify(temp)
 
+@app.route("/stamp", methods=['POST'])
+def stamp():
+    params=request.get_json()
+    stamp=params.get('stamp')
+    result=determine_stamp_type(stamp)
+    temp={'result':result}
+    
+    return jsonify(temp)
 
 
+def query_collection(collection, query, max_results, dataframe):
+    results = collection.query(query_texts=query, n_results=max_results, include=['distances'])
+    print(results)
+    df = pd.DataFrame({
+                'id':results['ids'][0],
+                'score':results['distances'][0],
+                'content': dataframe[dataframe.vector_id.isin(results['ids'][0])]['text'],
+                })
+
+    return df
+
+chroma_db_num=0
+
+
+@app.route("/stamp_to_mood_report",methods=['POST'])
+def stamp_to_mood_report():
+    print('stamp to mood report start')
+    """
+    chroma_client=chromadb.Client()
+    params = request.get_json()
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    EMBEDDING_MODEL="text-embedding-ada-002"
+
+    embedding_function = OpenAIEmbeddingFunction(api_key=os.getenv("OPENAI_API_KEY"), model_name=EMBEDDING_MODEL)
+
+    if len(params.get('moodReportEmotions'))==0:
+        return jsonify({'result':False,'weekNum':-1})
+    check=0
+    for index in range(len(params.get('moodReportEmotions'))):
+        if params.get('moodReportEmotions')[index][0]!='':
+            check=1
+    if not check:
+        return jsonify({'result':False,'weekNum':-1})
+
+    df = pd.DataFrame(columns=['text','content_vector','vector_id'])
+
+    for index in range(len(params.get('moodReportEmotions'))):
+        print(params.get('moodReportEmotions'))
+        print(params.get('moodReportEmotions')[index])
+        print(params.get('moodReportEmotions')[index][0])
+
+        flag=True
+
+        while flag:
+            try:
+                response=openai.Embedding.create(model=EMBEDDING_MODEL,input=params.get('moodReportEmotions')[index][0])
+                flag=False
+            except:
+                time.sleep(2)
+        df.loc[index]=[params.get('moodReportEmotions')[index][0],str(response["data"][0]["embedding"]),params.get('moodReportEmotions')[index][1]]
+
+    df['content_vector']=df.content_vector.apply(literal_eval)
+    df['vector_id'] = df['vector_id'].apply(str)
+
+    collection = chroma_client.create_collection(name=f'mood_report{chroma_db_num}', embedding_function=embedding_function)
+    collection.add(ids=df.vector_id.tolist(),
+        embeddings=df.content_vector.tolist())
+
+    for stamp in params.get('todayStampList'):
+
+        title_query_result = query_collection(
+            collection=collection,
+            query=stamp.get('stampName'),
+            max_results=1,
+            dataframe=df
+        )
+
+        if title_query_result.score[0]<0.34:
+            chroma_client.delete_collection(name=f'mood_report{chroma_db_num}')
+            return jsonify({'result':True,'weekNum':int(title_query_result.id[0])})
+    chroma_client.delete_collection(name=f'mood_report{chroma_db_num}')
+    """
+    return jsonify({'result':False,'weekNum':-1})
 
 
 @app.route("/draw_daily_stamp_total")

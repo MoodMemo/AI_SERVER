@@ -99,7 +99,7 @@ def store_data(db):
                 json_object['active_users']['2 stamps'][stamp_date]-=1
                 json_object['active_users']['more than 3 stamps'][stamp_date]+=1
     #end storing active_users
-
+    """
     #start storing dailyReport_time
     for item in db.dailyReport.find({"date":{"$gt":DR_start_time,"$lte":now_time}}):
         DR_date=(item['date']+datetime.timedelta(hours=9)).strftime("%m-%d")
@@ -107,7 +107,7 @@ def store_data(db):
     for key in json_object['dailyReport_time'].keys():
         json_object['dailyReport_time'][key]/=json_object['active_users']['more than 2 stamps'][key]
     #end storing dailyReport_time
-
+    """
     #TODO : 그 외 다른 통계들 추가하기
 
     json_object2 = json.dumps(json_object,sort_keys=True, default=str)

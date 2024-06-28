@@ -5,10 +5,28 @@ import os
 import datetime
 import time
 import tiktoken
+
 #import json
 #import requests
 
 
+def determine_stamp_type(stamp):
+    start=time.time()
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo-0613",
+        messages=[{"role": "user", "content":f"너는 아래 '''로 구분된 내용에 대해, 그 내용이 필자의 생각에서 비롯된 것인지, 필자가 경험한 사건에서 비롯된 것인지 구분해줘.\n아래 내용에 생각과 사건이 함께 존재한다면, 결론은 무조건 '사건'이야.\n아래 내용에 대해 하나의 결론만 내고, 대답은 '생각' 또는 '사건'으로만 해.\n'''\n{stamp}\n'''"}],
+        temperature=0.1
+        )
+    end=time.time()
+    #print(end-start,'sec')
+    """
+    print(response.usage)
+    output=response.choices[0].message.content
+    print(output)
+    """
+    #print(response.choices[0].message.content)
+    return response.choices[0].message.content
 
 
 def generate_journal(prompt):
@@ -39,7 +57,8 @@ def generate_journal(prompt):
 def make_prompt(age,gender,job,memolet_list):
     let=''
     for i in range(len(memolet_list)):
-        date=memolet_list[i].get('dateTime')
+        date=datetime.datetime.fromisoformat(memolet_list[i].get('dateTime').replace('Z','+00:00'))+datetime.timedelta(hours=9)
+        print(date)
         let+=f"{i+1}. {date[:10]} {date[11:16]} {memolet_list[i].get('memoLet')}\n"
     text=f"너는 {age}세 {gender} {job}의 입장에서 주어진 조건에 따라 일기를 작성해주는 assistant야.\n아래 \'\'\'로 구분된 내용중 1.,2.,3.과 같이 구분된 내용들을 합쳐 하나의 글로 된 일기를 써줘.\n이때 일기에는 [제목], [내용], [키>워드]가 포함되도록 해줘.\n키워드는 반드시 3개로 뽑아줘.\n1.,2.,3.과 같이 구분된 각 내용들은 오늘 하루 있었던 일들이야.\n일기에 구체적인 시간은 절대 포함하지 마.\n그리고 시간의 흐름만 반영해 일기를 과거형으로 써줘.\n일기 내용은 아래 \'\'\'로 구분된 내용을 기반으로, 과도한 추측은 하지 마.\n제목은 오늘 하루 있었던 일의 핵심을 요약해줘.\n\n\'\'\'\n{let}\'\'\'"
 
@@ -73,9 +92,11 @@ def generate_DR(prompt):
 def make_prompt_DR(age,gender,job,memo_list):
     let=''
     for i in range(len(memo_list)):
-        date=memo_list[i].get('dateTime')
+        date=datetime.datetime.fromisoformat(memo_list[i].get('dateTime').replace('Z','+00:00'))+datetime.timedelta(hours=9)
+        print(date,type(date))
+        date=str(date)
         let+=f"{i+1}. {date[:10]} {date[11:16]} {memo_list[i].get('memo')}\n"
-    text=f"너는 {age}세 {gender} {job}의 입장에서 주어진 조건에 따라 일기를 작성해주는 assistant야.\n아래 \'\'\'로 구분된 내용중 1.,2.,3.과 같이 구분된 내용들을 합쳐 하나의 글로 된 일기를 써줘.\n이때 일기에는 [제목], [내용], [키>워드]가 포함되도록 해줘.\n키워드는 반드시 3개로 뽑아줘.\n1.,2.,3.과 같이 구분된 각 내용들은 오늘 하루 있었던 일들이야.\n일기에 구체적인 시간은 절대 포함하지 마.\n그리고 시간의 흐름만 반영해 일기를 과거형으로 써줘.\n일기 내용은 아래 \'\'\'로 구분된 내용을 기반으로, 과도한 추측은 하지 마.\n제목은 오늘 하루 있었던 일의 핵심을 요약해줘.\n\n\'\'\'\n{let}\'\'\'"
+    text=f"너는 {age}세 {gender} {job}의 입장에서 주어진 조건에 따라 일기를 작성해주는 assistant야.\n아래 \'\'\'로 구분된 내용중 1.,2.,3.과 같이 구분된 내용들을 합쳐 하나의 글로 된 일기를 써줘.\n이때 일기에는 [제목], [내용], [키워드]가 포함되도록 해줘.\n키워드는 반드시 3개로 뽑아줘.\n1.,2.,3.과 같이 구분된 각 내용들은 오늘 하루 있었던 일들이야.\n일기에 구체적인 시간은 절대 포함하지 마.\n그리고 시간의 흐름만 반영해 일기를 과거형으로 써줘.\n일기 내용은 아래 \'\'\'로 구분된 내용을 기반으로, 과도한 추측은 하지 마.\n제목은 오늘 하루 있었던 일의 핵심을 요약해줘.\n\n\'\'\'\n{let}\'\'\'"
 
     return text
 
@@ -100,7 +121,9 @@ def generate_keyword():
     output=response.choices[0].message.content
     return output
 
-if __name__ == "__main__":
+
+if __name__=="__main__":
+    """
     user = {
         "userDto": {
             "kakaoId": "101010",
@@ -148,6 +171,9 @@ if __name__ == "__main__":
         journal,running_time=generate_journal(prompt)
         print(journal)
         print(running_time)
+    """
+
+
 
 
 
